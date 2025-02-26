@@ -714,8 +714,7 @@ class Classic:
         custom_font_large = tkinter.font.Font(family="MPH 2B Damase", size=30, weight="bold")
         custom_font_small = tkinter.font.Font(family="MPH 2B Damase", size=14, weight="bold")
         number_of_guesses = 0
-        # chosen_champ = random.choice(list(classic_champion_data.keys()))
-        chosen_champ = 'Darius'
+        chosen_champ = random.choice(list(classic_champion_data.keys()))
 
         classic_game = Classic(frame, classic_champion_data, window, custom_font_large, custom_font_small, number_of_guesses, chosen_champ)
 
