@@ -1,0 +1,744 @@
+# Loldle-clone made entirely in python with tkinter
+# Creator: https://github.com/Moonlion43
+# Original website: https://loldle.net/classic 
+
+from tkinter import *
+import tkinter.font
+from PIL import ImageTk, Image
+from pathlib import Path
+import random
+import time
+
+icon_images = [
+    Path(r"icons\Classic.png"),
+    Path(r"icons\Qoute.png"),
+    Path(r"icons\Ability.png"),
+    Path(r"icons\Emoji.png"),
+    Path(r"icons\Splash.png"),
+]
+
+entry_images = [
+    Path(r"misc images\Text Input.webp"),
+    Path(r"misc images\Text Input Arrow.webp"),
+]
+
+background_image = Path(r"misc images\Darkened Wallpaper.webp")
+
+champ_header_texts = [
+    "Champion",
+    "Gender",
+    "Position(s)",
+    "Species",
+    "Resource",
+    "Range type",
+    "Region(s)",
+    "Release Year",
+    "Broken?",
+]
+
+broken_champs = [
+    "Skarner",
+    "Ambessa",
+    "Bel'Veth",
+    "Cassiopeia",
+    "K'Sante",
+    "Lulu",
+    "Mel",
+    "Tahm Kench",
+]
+
+classic_champion_data = {
+    'Aatrox': ['Male', 'Top', 'Darkin', 'Manaless', 'Melee', 'Runeterra, Shurima', '2013'],
+    'Ahri': ['Female', 'Middle', 'Vastayan', 'Mana', 'Ranged', 'Ionia', '2011'],
+    'Akali': ['Female', 'Middle', 'Human', 'Energy', 'Melee', 'Ionia', '2010'],
+    'Akshan': ['Male', 'Middle', 'Human', 'Mana', 'Ranged', 'Shurima', '2021'],
+    'Alistar': ['Male', 'Support', 'Minotaur', 'Mana', 'Melee', 'Runeterra', '2009'],
+    'Ambessa': ['Female', 'Jungle, Top', 'Human', 'Energy', 'Melee', 'Noxus, Piltover', '2024'],
+    'Amumu': ['Male', 'Jungle', 'Undead, Yordle', 'Mana', 'Melee', 'Shurima', '2009'],
+    'Anivia': ['Female', 'Middle', 'God, Spirit', 'Mana', 'Ranged', 'Freljord', '2009'],
+    'Annie': ['Female', 'Middle', 'Human, Magicborn', 'Mana', 'Ranged', 'Noxus, Runeterra', '2009'],
+    'Aphelios': ['Male', 'Bottom', 'Human, Spiritualist', 'Mana', 'Ranged', 'Targon', '2019'],
+    'Ashe': ['Female', 'Bottom', 'Human, Iceborn', 'Mana', 'Ranged', 'Freljord', '2009'],
+    'Aurelion Sol': ['Male', 'Middle', 'Celestial, Dragon', 'Mana', 'Ranged', 'Runeterra, Targon', '2016'],
+    'Aurora': ['Female', 'Middle, Top', 'Vastayan', 'Mana', 'Ranged', 'Freljord', '2024'],
+    'Azir': ['Male', 'Middle', 'God-Warrior', 'Mana', 'Ranged', 'Shurima', '2014'],
+    'Bard': ['Male', 'Support', 'Celestial', 'Mana', 'Ranged', 'Runeterra', '2015'],
+    "Bel'Veth": ['Female', 'Jungle', 'Void-Being', 'Manaless', 'Melee', 'Void', '2022'],
+    'Blitzcrank': ['Other', 'Support', 'Golem', 'Mana', 'Melee', 'Zaun', '2009'],
+    'Brand': ['Male', 'Support', 'Human, Magically Altered', 'Mana', 'Ranged', 'Freljord, Runeterra', '2011'],
+    'Braum': ['Male', 'Support', 'Human, Iceborn', 'Mana', 'Melee', 'Freljord', '2014'],
+    'Briar': ['Female', 'Jungle', 'Golem', 'Health costs', 'Melee', 'Noxus', '2023'],
+    'Caitlyn': ['Female', 'Bottom', 'Human', 'Mana', 'Ranged', 'Piltover', '2011'],
+    'Camille': ['Female', 'Top', 'Cyborg, Human', 'Mana', 'Melee', 'Piltover', '2016'],
+    'Cassiopeia': ['Female', 'Middle, Top', 'Human, Magically Altered', 'Mana', 'Ranged', 'Noxus, Shurima', '2010'],
+    "Cho'Gath": ['Male', 'Top', 'Void-Being', 'Mana', 'Melee', 'Void', '2009'],
+    'Corki': ['Male', 'Bottom, Middle', 'Yordle', 'Mana', 'Ranged', 'Bandle City, Piltover', '2009'],
+    'Darius': ['Male', 'Top', 'Human', 'Mana', 'Melee', 'Noxus', '2012'],
+    'Diana': ['Female', 'Jungle, Middle', 'Aspect, Human', 'Mana', 'Melee', 'Targon', '2012'],
+    'Dr. Mundo': ['Male', 'Top', 'Chemically Altered, Human', 'Health costs', 'Melee', 'Zaun', '2009'],
+    'Draven': ['Male', 'Bottom', 'Human', 'Mana', 'Ranged', 'Noxus', '2012'],
+    'Ekko': ['Male', 'Jungle, Middle', 'Human', 'Mana', 'Melee', 'Zaun', '2015'],
+    'Elise': ['Female', 'Jungle', 'Human, Magically Altered', 'Mana', 'Melee, Ranged', 'Noxus, Shadow Isles', '2012'],
+    'Evelynn': ['Female', 'Jungle', 'Demon, Spirit', 'Mana', 'Melee', 'Runeterra', '2009'],
+    'Ezreal': ['Male', 'Bottom', 'Human, Magicborn', 'Mana', 'Ranged', 'Piltover', '2010'],
+    'Fiddlesticks': ['Other', 'Jungle', 'Demon, Spirit', 'Mana', 'Ranged', 'Runeterra', '2009'],
+    'Fiora': ['Female', 'Top', 'Human', 'Mana', 'Melee', 'Demacia', '2012'],
+    'Fizz': ['Male', 'Middle', 'Yordle', 'Mana', 'Melee', 'Bilgewater', '2011'],
+    'Galio': ['Male', 'Middle', 'Golem', 'Mana', 'Melee', 'Demacia', '2010'],
+    'Gangplank': ['Male', 'Top', 'Human', 'Mana', 'Melee', 'Bilgewater', '2009'],
+    'Garen': ['Male', 'Top', 'Human', 'Manaless', 'Melee', 'Demacia', '2010'],
+    'Gnar': ['Male', 'Top', 'Yordle', 'Rage', 'Melee, Ranged', 'Freljord', '2014'],
+    'Gragas': ['Male', 'Jungle, Top', 'Human, Iceborn', 'Mana', 'Melee', 'Freljord', '2010'],
+    'Graves': ['Male', 'Jungle', 'Human', 'Mana', 'Ranged', 'Bilgewater', '2011'],
+    'Gwen': ['Female', 'Jungle, Top', 'Human, Magically Altered', 'Mana', 'Melee', 'Camavor, Shadow Isles', '2021'],
+    'Hecarim': ['Male', 'Jungle', 'Undead', 'Mana', 'Melee', 'Camavor, Shadow Isles', '2012'],
+    'Heimerdinger': ['Male', 'Middle, Top', 'Yordle', 'Mana', 'Ranged', 'Piltover', '2009'],
+    'Hwei': ['Male', 'Middle', 'Human, Magicborn', 'Mana', 'Ranged', 'Ionia', '2023'],
+    'Illaoi': ['Female', 'Top', 'Human, Spiritualist', 'Mana', 'Melee', 'Bilgewater', '2015'],
+    'Irelia': ['Female', 'Middle, Top', 'Human, Spiritualist', 'Mana', 'Melee', 'Ionia', '2010'],
+    'Ivern': ['Male', 'Jungle', 'Human, Magically Altered', 'Mana', 'Ranged', 'Freljord, Ionia', '2016'],
+    'Janna': ['Female', 'Support', 'God, Spirit', 'Mana', 'Ranged', 'Shurima, Zaun', '2009'],
+    'Jarvan IV': ['Male', 'Jungle', 'Human', 'Mana', 'Melee', 'Demacia', '2011'],
+    'Jax': ['Male', 'Jungle, Top', 'Unknown', 'Mana', 'Melee', 'Icathia, Runeterra', '2009'],
+    'Jayce': ['Male', 'Middle, Top', 'Human', 'Mana', 'Melee, Ranged', 'Piltover', '2012'],
+    'Jhin': ['Male', 'Bottom', 'Human, Spiritualist', 'Mana', 'Ranged', 'Ionia', '2016'],
+    'Jinx': ['Female', 'Bottom', 'Chemically Altered, Human', 'Mana', 'Ranged', 'Zaun', '2013'],
+    "K'Sante": ['Male', 'Top', 'Human', 'Mana', 'Melee', 'Shurima', '2022'],
+    "Kai'Sa": ['Female', 'Bottom', 'Human, Void-Being', 'Mana', 'Ranged', 'Shurima, Void', '2018'],
+    'Kalista': ['Female', 'Bottom', 'Undead', 'Mana', 'Ranged', 'Camavor, Shadow Isles', '2014'],
+    'Karma': ['Female', 'Support', 'Human, Spiritualist', 'Mana', 'Ranged', 'Ionia', '2011'],
+    'Karthus': ['Male', 'Jungle', 'Undead', 'Mana', 'Ranged', 'Noxus, Shadow Isles', '2009'],
+    'Kassadin': ['Male', 'Middle', 'Human, Void-Being', 'Mana', 'Melee', 'Shurima, Void', '2009'],
+    'Katarina': ['Female', 'Middle', 'Human', 'Manaless', 'Melee', 'Noxus', '2009'],
+    'Kayle': ['Female', 'Top', 'Aspect, Human, Magically Altered', 'Mana', 'Melee, Ranged', 'Demacia, Targon', '2009'],
+    'Kayn': ['Male', 'Jungle', 'Darkin, Human, Magically Altered', 'Mana', 'Melee', 'Ionia, Noxus', '2017'],
+    'Kennen': ['Male', 'Top', 'Yordle', 'Energy', 'Ranged', 'Ionia', '2010'],
+    "Kha'Zix": ['Male', 'Jungle', 'Void-Being', 'Mana', 'Melee', 'Void', '2012'],
+    'Kindred': ['Other', 'Jungle', 'God, Spirit', 'Mana', 'Ranged', 'Runeterra', '2015'],
+    'Kled': ['Male', 'Top', 'Yordle', 'Courage', 'Melee', 'Noxus', '2016'],
+    "Kog'Maw": ['Male', 'Bottom', 'Void-Being', 'Mana', 'Ranged', 'Void', '2010'],
+    'LeBlanc': ['Female', 'Middle', 'Human, Magically Altered', 'Mana', 'Ranged', 'Noxus', '2010'],
+    'Lee Sin': ['Male', 'Jungle', 'Human, Spiritualist', 'Energy', 'Melee', 'Ionia', '2011'],
+    'Leona': ['Female', 'Support', 'Aspect, Human', 'Mana', 'Melee', 'Targon', '2011'],
+    'Lillia': ['Female', 'Jungle', 'Spirit', 'Mana', 'Melee', 'Ionia', '2020'],
+    'Lissandra': ['Female', 'Middle', 'Human, Iceborn', 'Mana', 'Ranged', 'Freljord', '2013'],
+    'Lucian': ['Male', 'Bottom', 'Human', 'Mana', 'Ranged', 'Demacia, Shadow Isles', '2013'],
+    'Lulu': ['Female', 'Support', 'Yordle', 'Mana', 'Ranged', 'Bandle City', '2012'],
+    'Lux': ['Female', 'Middle, Support', 'Human, Magicborn', 'Mana', 'Ranged', 'Demacia', '2010'],
+    'Malphite': ['Male', 'Top', 'Golem', 'Mana', 'Melee', 'Ixtal, Shurima', '2009'],
+    'Malzahar': ['Male', 'Middle', 'Human, Void-Being', 'Mana', 'Ranged', 'Shurima, Void', '2010'],
+    'Maokai': ['Male', 'Support, Top', 'Spirit', 'Mana', 'Melee', 'Shadow Isles', '2011'],
+    'Master Yi': ['Male', 'Jungle', 'Human, Spiritualist', 'Mana', 'Melee', 'Ionia', '2009'],
+    'Mel': ['Female', 'Middle, Support', 'Human, Magically Altered', 'Mana', 'Ranged', 'Noxus, Piltover', '2025'],
+    'Milio': ['Male', 'Support', 'Human, Magicborn', 'Mana', 'Ranged', 'Ixtal', '2023'],
+    'Miss Fortune': ['Female', 'Bottom', 'Human', 'Mana', 'Ranged', 'Bilgewater', '2010'],
+    'Mordekaiser': ['Male', 'Top', 'Revenant', 'Shield', 'Melee', 'Noxus, Shadow Isles', '2010'],
+    'Morgana': ['Female', 'Support', 'Aspect, Human, Magically Altered', 'Mana', 'Ranged', 'Demacia, Targon', '2009'],
+    'Naafiri': ['Female', 'Middle', 'Darkin, Dog', 'Mana', 'Melee', 'Shurima', '2023'],
+    'Nami': ['Female', 'Support', 'Vastayan', 'Mana', 'Ranged', 'Bilgewater, Runeterra', '2012'],
+    'Nasus': ['Male', 'Top', 'God-Warrior', 'Mana', 'Melee', 'Shurima', '2009'],
+    'Nautilus': ['Male', 'Support', 'Revenant', 'Mana', 'Melee', 'Bilgewater', '2012'],
+    'Neeko': ['Female', 'Middle, Support', 'Vastayan', 'Mana', 'Ranged', 'Ixtal', '2018'],
+    'Nidalee': ['Female', 'Jungle', 'Human, Spiritualist', 'Mana', 'Melee, Ranged', 'Ixtal', '2009'],
+    'Nilah': ['Female', 'Bottom', 'Human, Magically Altered', 'Mana', 'Melee', 'Bilgewater', '2022'],
+    'Nocturne': ['Male', 'Jungle', 'Demon, Spirit', 'Mana', 'Melee', 'Runeterra', '2011'],
+    "Nunu & Willump": ['Male', 'Jungle', 'Human, Yeti', 'Mana', 'Melee', 'Freljord', '2009'],
+    'Olaf': ['Male', 'Top', 'Human, Iceborn', 'Mana', 'Melee', 'Freljord', '2010'],
+    'Orianna': ['Female', 'Middle', 'Golem', 'Mana', 'Ranged', 'Piltover', '2011'],
+    'Ornn': ['Male', 'Top', 'God, Spirit', 'Mana', 'Melee', 'Freljord', '2017'],
+    'Pantheon': ['Male', 'Support, Top', 'Aspect, Human', 'Mana', 'Melee', 'Targon', '2010'],
+    'Poppy': ['Female', 'Support, Top', 'Yordle', 'Mana', 'Melee', 'Demacia', '2010'],
+    'Pyke': ['Male', 'Support', 'Revenant', 'Mana', 'Melee', 'Bilgewater', '2018'],
+    'Qiyana': ['Female', 'Middle', 'Human, Magicborn', 'Mana', 'Melee', 'Ixtal', '2019'],
+    'Quinn': ['Female', 'Top', 'Human', 'Mana', 'Ranged', 'Demacia', '2013'],
+    'Rakan': ['Male', 'Support', 'Vastayan', 'Mana', 'Melee', 'Ionia', '2017'],
+    'Rammus': ['Male', 'Jungle', 'Unknown', 'Mana', 'Melee', 'Shurima', '2009'],
+    "Rek'Sai": ['Female', 'Jungle', 'Void-Being', 'Rage', 'Melee', 'Shurima, Void', '2014'],
+    'Rell': ['Female', 'Support', 'Human, Magically Altered, Magicborn', 'Mana', 'Melee', 'Noxus', '2020'],
+    'Renata Glasc': ['Female', 'Support', 'Chemically Altered, Human', 'Mana', 'Ranged', 'Zaun', '2022'],
+    'Renekton': ['Male', 'Top', 'God-Warrior', 'Fury', 'Melee', 'Shurima', '2011'],
+    'Rengar': ['Male', 'Jungle', 'Vastayan', 'Ferocity', 'Melee', 'Ixtal, Shurima', '2012'],
+    'Riven': ['Female', 'Top', 'Human', 'Manaless', 'Melee', 'Ionia, Noxus', '2011'],
+    'Rumble': ['Male', 'Top', 'Yordle', 'Heat', 'Melee', 'Bandle City', '2011'],
+    'Ryze': ['Male', 'Middle, Top', 'Human, Magically Altered', 'Mana', 'Ranged', 'Runeterra', '2009'],
+    'Samira': ['Female', 'Bottom', 'Human', 'Mana', 'Ranged', 'Noxus, Shurima', '2020'],
+    'Sejuani': ['Female', 'Jungle', 'Human, Iceborn', 'Mana', 'Melee', 'Freljord', '2012'],
+    'Senna': ['Female', 'Support', 'Human, Undead', 'Mana', 'Ranged', 'Shadow Isles', '2019'],
+    'Seraphine': ['Female', 'Support', 'Human, Magicborn', 'Mana', 'Ranged', 'Piltover, Zaun', '2020'],
+    'Sett': ['Male', 'Top', 'Human, Vastayan', 'Grit', 'Melee', 'Ionia', '2020'],
+    'Shaco': ['Male', 'Jungle', 'Spirit', 'Mana', 'Melee', 'Runeterra', '2009'],
+    'Shen': ['Male', 'Support, Top', 'Human, Spiritualist', 'Energy', 'Melee', 'Ionia', '2010'],
+    'Shyvana': ['Female', 'Jungle', 'Dragon, Magically Altered', 'Fury', 'Melee', 'Demacia', '2011'],
+    'Singed': ['Male', 'Top', 'Chemically Altered, Human', 'Mana', 'Melee', 'Piltover, Zaun', '2009'],
+    'Sion': ['Male', 'Top', 'Revenant', 'Mana', 'Melee', 'Noxus', '2009'],
+    'Sivir': ['Female', 'Bottom', 'Human', 'Mana', 'Ranged', 'Shurima', '2009'],
+    'Skarner': ['Male', 'Jungle', 'Brackern', 'Mana', 'Melee', 'Ixtal', '2011'],
+    'Smolder': ['Male', 'Bottom, Middle', 'Dragon', 'Mana', 'Ranged', 'Camavor, Noxus', '2024'],
+    'Sona': ['Female', 'Support', 'Human, Magicborn', 'Mana', 'Ranged', 'Demacia, Ionia', '2010'],
+    'Soraka': ['Female', 'Support', 'Celestial', 'Mana', 'Ranged', 'Ionia, Targon', '2009'],
+    'Swain': ['Male', 'Support', 'Human, Magically Altered', 'Mana', 'Ranged', 'Noxus', '2010'],
+    'Sylas': ['Male', 'Middle', 'Human, Magicborn', 'Mana', 'Melee', 'Demacia, Freljord', '2019'],
+    'Syndra': ['Female', 'Middle', 'Human, Magicborn', 'Mana', 'Ranged', 'Ionia', '2012'],
+    'Tahm Kench': ['Male', 'Support, Top', 'Demon, Spirit', 'Mana', 'Melee', 'Bilgewater, Runeterra', '2015'],
+    'Taliyah': ['Female', 'Jungle, Middle', 'Human, Magicborn', 'Mana', 'Ranged', 'Shurima', '2016'],
+    'Talon': ['Male', 'Jungle, Middle', 'Human', 'Mana', 'Melee', 'Noxus', '2011'],
+    'Taric': ['Male', 'Support', 'Aspect, Human', 'Mana', 'Melee', 'Demacia, Targon', '2009'],
+    'Teemo': ['Male', 'Jungle, Top', 'Yordle', 'Mana', 'Ranged', 'Bandle City', '2009'],
+    'Thresh': ['Male', 'Support', 'Undead', 'Mana', 'Ranged', 'Shadow Isles', '2013'],
+    'Tristana': ['Female', 'Bottom', 'Yordle', 'Mana', 'Ranged', 'Bandle City', '2009'],
+    'Trundle': ['Male', 'Jungle, Top', 'Iceborn, Troll', 'Mana', 'Melee', 'Freljord', '2010'],
+    'Tryndamere': ['Male', 'Top', 'Human, Magically Altered', 'Fury', 'Melee', 'Freljord', '2009'],
+    'Twisted Fate': ['Male', 'Middle', 'Human, Magicborn', 'Mana', 'Ranged', 'Bilgewater', '2009'],
+    'Twitch': ['Male', 'Bottom', 'Chemically Altered, Rat', 'Mana', 'Ranged', 'Zaun', '2009'],
+    'Udyr': ['Male', 'Jungle', 'Human, Spiritualist', 'Mana', 'Melee', 'Freljord, Ionia', '2009'],
+    'Urgot': ['Male', 'Top', 'Chemically Altered, Cyborg, Human', 'Mana', 'Ranged', 'Noxus, Zaun', '2010'],
+    'Varus': ['Male', 'Bottom', 'Darkin, Human', 'Mana', 'Ranged', 'Ionia, Runeterra', '2012'],
+    'Vayne': ['Female', 'Bottom', 'Human', 'Mana', 'Ranged', 'Demacia', '2011'],
+    'Veigar': ['Male', 'Middle', 'Yordle', 'Mana', 'Ranged', 'Bandle City, Runeterra', '2009'],
+    "Vel'Koz": ['Male', 'Middle, Support', 'Void-Being', 'Mana', 'Ranged', 'Void', '2014'],
+    'Vex': ['Female', 'Middle', 'Yordle', 'Mana', 'Ranged', 'Bandle City, Shadow Isles', '2021'],
+    'Vi': ['Female', 'Jungle', 'Human', 'Mana', 'Melee', 'Piltover, Zaun', '2012'],
+    'Viego': ['Male', 'Jungle', 'Undead', 'Manaless', 'Melee', 'Camavor, Shadow Isles', '2021'],
+    'Viktor': ['Male', 'Middle', 'Cyborg, Human', 'Mana', 'Ranged', 'Piltover, Zaun', '2011'],
+    'Vladimir': ['Male', 'Middle, Top', 'Human, Magically Altered', 'Bloodthirst', 'Ranged', 'Camavor, Noxus', '2010'],
+    'Volibear': ['Male', 'Jungle, Top', 'God, Spirit', 'Mana', 'Melee', 'Freljord', '2011'],
+    'Warwick': ['Male', 'Jungle, Top', 'Chemically Altered, Cyborg, Human', 'Mana', 'Melee', 'Zaun', '2009'],
+    'Wukong': ['Male', 'Jungle, Top', 'Vastayan', 'Mana', 'Melee', 'Ionia', '2011'],
+    'Xayah': ['Female', 'Bottom', 'Vastayan', 'Mana', 'Ranged', 'Ionia', '2017'],
+    'Xerath': ['Male', 'Middle, Support', 'God-Warrior', 'Mana', 'Ranged', 'Shurima', '2011'],
+    'Xin Zhao': ['Male', 'Jungle', 'Human', 'Mana', 'Melee', 'Demacia, Ionia', '2010'],
+    'Yasuo': ['Male', 'Middle', 'Human, Magicborn', 'Flow', 'Melee', 'Ionia', '2013'],
+    'Yone': ['Male', 'Middle, Top', 'Human, Magically Altered', 'Manaless', 'Melee', 'Ionia', '2020'],
+    'Yorick': ['Male', 'Top', 'Human, Magically Altered', 'Mana', 'Melee', 'Shadow Isles', '2011'],
+    'Yuumi': ['Female', 'Support', 'Cat, Magically Altered', 'Mana', 'Ranged', 'Bandle City', '2019'],
+    'Zac': ['Male', 'Jungle', 'Golem', 'Health costs', 'Melee', 'Zaun', '2013'],
+    'Zed': ['Male', 'Middle', 'Human, Magically Altered', 'Energy', 'Melee', 'Ionia', '2012'],
+    'Zeri': ['Female', 'Bottom', 'Human, Magicborn', 'Mana', 'Ranged', 'Zaun', '2022'],
+    'Ziggs': ['Male', 'Bottom, Middle', 'Yordle', 'Mana', 'Ranged', 'Zaun', '2012'],
+    'Zilean': ['Male', 'Support', 'Human, Magicborn', 'Mana', 'Ranged', 'Icathia, Runeterra', '2009'],
+    'Zoe': ['Female', 'Middle, Support', 'Aspect, Human', 'Mana', 'Ranged', 'Targon', '2017'],
+    'Zyra': ['Female', 'Support', 'Unknown', 'Mana', 'Ranged', 'Ixtal', '2012'],
+}
+
+champ_list = [
+    "Aatrox", "Ahri", "Akali", "Akshan", "Alistar", "Ambessa", "Amumu", "Anivia", "Annie", "Aphelios",
+    "Ashe", "Aurelion Sol", "Aurora", "Azir", "Bard", "Bel'Veth", "Blitzcrank", "Brand",
+    "Braum", "Briar", "Caitlyn", "Camille", "Cassiopeia", "Cho'Gath", "Corki", "Darius",
+    "Diana", "Dr. Mundo", "Draven", "Ekko", "Elise", "Evelynn", "Ezreal", "Fiddlesticks",
+    "Fiora", "Fizz", "Galio", "Gangplank", "Garen", "Gnar", "Gragas", "Graves", "Gwen",
+    "Hecarim", "Heimerdinger", "Hwei", "Illaoi", "Irelia", "Ivern", "Janna", "Jarvan IV",
+    "Jax", "Jayce", "Jhin", "Jinx", "Kai'Sa", "Kalista", "Karma", "Karthus", "Kassadin",
+    "Katarina", "Kayle", "Kayn", "Kennen", "Kha'Zix", "Kindred", "Kled", "Kog'Maw",
+    "K'Sante", "LeBlanc", "Lee Sin", "Leona", "Lillia", "Lissandra", "Lucian", "Lulu",
+    "Lux", "Malphite", "Malzahar", "Maokai", "Master Yi", "Mel", "Milio", "Miss Fortune",
+    "Mordekaiser", "Morgana", "Naafiri", "Nami", "Nasus", "Nautilus", "Neeko", "Nidalee",
+    "Nilah", "Nocturne", "Nunu & Willump", "Olaf", "Orianna", "Ornn", "Pantheon", "Poppy",
+    "Pyke", "Qiyana", "Quinn", "Rakan", "Rammus", "Rek'Sai", "Rell", "Renata Glasc",
+    "Renekton", "Rengar", "Riven", "Rumble", "Ryze", "Samira", "Sejuani", "Senna",
+    "Seraphine", "Sett", "Shaco", "Shen", "Shyvana", "Singed", "Sion", "Sivir",
+    "Skarner", "Smolder", "Sona", "Soraka", "Swain", "Sylas", "Syndra", "Tahm Kench", "Taliyah",
+    "Talon", "Taric", "Teemo", "Thresh", "Tristana", "Trundle", "Tryndamere",
+    "Twisted Fate", "Twitch", "Udyr", "Urgot", "Varus", "Vayne", "Veigar", "Vel'Koz",
+    "Vex", "Vi", "Viego", "Viktor", "Vladimir", "Volibear", "Warwick", "Wukong",
+    "Xayah", "Xerath", "Xin Zhao", "Yasuo", "Yone", "Yorick", "Yuumi", "Zac", "Zed",
+    "Zeri", "Ziggs", "Zilean", "Zoe", "Zyra",
+]
+
+# Creates a new line for each comma in the different elements in the value-list of the key in classic_champion_data
+for i in range(len(champ_list)):
+    for j in range(len(classic_champion_data[champ_list[i]])):
+        classic_champion_data[champ_list[i]][j] = classic_champion_data[champ_list[i]][j].replace(", ", ",\n")
+
+# Creates a dictionary with keys as champion names and gives an absolute file-path as values
+champ_icon_dictionary = {}
+file_path = "C:\\Users\\henri\\OneDrive - AARHUS TECH\\2. G\\Programmering\\Skoleprojekter\\Eksamen\\champ_icons\\"
+for i in range(170):
+    champ_name = champ_list[i]
+    champ_icon_dictionary.update({str(champ_name): f"{file_path}{champ_list[i]}Square.webp"})
+
+class Classic:
+    def __init__(self, frame, champion_info, window, lol_font_large, lol_font_small, number_of_guesses, chosen_champ):
+        self.frame = frame
+        self.champion_guess = StringVar()
+        self.champion_info = champion_info
+        self.window = window
+        self.lol_font_large = lol_font_large
+        self.lol_font_small = lol_font_small
+        self.images = [self.image_loader(path) for path in icon_images]
+        self.number_of_guesses = number_of_guesses
+        self.chosen_champ = chosen_champ
+
+        self.champ_list = list(champion_info.keys())
+        self.icon_labels = []
+        self.information_labels = []
+        self.guess_labels = []
+        self.champ_guesses = []
+        
+        # Store all guesses and their info
+        self.all_guesses = []
+        # Maximum number of displayed champions
+        self.max_displayed_champs = 5
+        # Keep track of displayed champion widgets
+        self.displayed_champ_widgets = []
+        # Keep track of guessed champion names to prevent duplicates
+        self.guessed_champions = set()
+        # Game won flag
+        self.game_won = False
+        
+        self.guess_sign = None
+        self.Loldle_title = None
+        self.icon_label = None
+        self.champ_guess_field = None
+        self.arrow_button = None
+        self.information = None
+        self.line = None
+
+        self.create_icons()
+        self.guess_sign_creator()
+        self.guess_champ()
+        self.display_champ_headers()
+
+        self.window.after(100, lambda: self.window.bind("<Configure>", lambda event: self.resize_handler()))
+    
+    def resize_handler(self):
+        self.handling_size = int(min(self.window.winfo_height(), self.window.winfo_width())/10)
+        if self.Loldle_title:
+            self.Loldle_title.config(font=("Copperplate Gothic Bold", int(self.handling_size*0.5)))
+        if self.guess_sign:
+            self.guess_sign.config(font=("Copperplate Gothic Bold", int(self.handling_size*0.3)))
+        if self.icon_label:
+            for i in range(len(self.images)):
+                original_image = Image.open(icon_images[i])
+                resized_image = original_image.resize((int(self.handling_size*0.5), int(self.handling_size*0.5)), Image.Resampling.BILINEAR)
+                self.images[i] = ImageTk.PhotoImage(resized_image)
+                self.icon_label.config(image=self.images[i])
+                self.icon_label.config(width=int(self.handling_size*0.5), height=int(self.handling_size*0.5))
+        if self.information:
+            for i in range(len(self.information_labels)):
+                self.information_labels[i].config(font=("Copperplate Gothic Bold", int(self.handling_size*0.1)))
+        if self.line:
+            pass
+    
+    def guess_colorer(self, guess_labels, champ_name):
+        chosen_data = classic_champion_data[self.chosen_champ]
+
+        if self.chosen_champ in broken_champs:
+            label_text = "Broken"
+        else:
+            label_text = "Balanced"
+        chosen_data.append(label_text)
+
+        # Check if this is the correct champion
+        correct_guess = (champ_name == self.chosen_champ)
+        all_correct = True
+
+        if guess_labels:
+            for i in range(len(guess_labels)):
+                if guess_labels[i]["text"] == chosen_data[i]:
+                    guess_labels[i].config(bg="#21ed1a")  # Green for correct
+                elif guess_labels[i]["text"] in chosen_data[i]:
+                    guess_labels[i].config(bg="#f78d23")  # Orange for partially correct
+                    all_correct = False
+                else:
+                    guess_labels[i].config(bg="#f52727")  # Red for incorrect
+                    all_correct = False
+
+        # If it's the correct champion and all fields are green, player won
+        if correct_guess and all_correct and not self.game_won:
+            self.game_won = True
+            self.show_victory_popup()
+
+    def show_victory_popup(self):
+        # Create a popup window
+        popup = Toplevel(self.window)
+        popup.title("Congratulations!")
+        
+        # Calculate position to center the popup
+        window_width = self.window.winfo_width()
+        window_height = self.window.winfo_height()
+        popup_width = 400
+        popup_height = 250
+        x_position = self.window.winfo_x() + (window_width - popup_width) // 2
+        y_position = self.window.winfo_y() + (window_height - popup_height) // 2
+        
+        # Set popup size and position
+        popup.geometry(f"{popup_width}x{popup_height}+{x_position}+{y_position}")
+        popup.resizable(False, False)
+        
+        # Make popup appear on top and grab focus
+        popup.transient(self.window)
+        popup.grab_set()
+        
+        # Style the popup
+        popup.configure(bg="#1E2328")
+        
+        # Create a frame for content
+        content_frame = Frame(popup, bg="#1E2328", padx=20, pady=20)
+        content_frame.pack(expand=True, fill="both")
+        
+        # Victory message
+        victory_label = Label(
+            content_frame,
+            text=f"Congratulations!\nYou guessed the champion: {self.chosen_champ}!",
+            font=("Copperplate Gothic Bold", 16),
+            bg="#1E2328",
+            fg="#EDB933",
+            justify="center",
+            wraplength=350
+        )
+        victory_label.pack(pady=10)
+        
+        # Add stats
+        stats_label = Label(
+            content_frame,
+            text=f"Number of guesses: {self.number_of_guesses}",
+            font=("Arial", 12),
+            bg="#1E2328",
+            fg="white"
+        )
+        stats_label.pack(pady=5)
+        
+        # Close button
+        close_button = Button(
+            content_frame,
+            text="Close",
+            font=("Arial", 12),
+            bg="#01708D",
+            fg="white",
+            command=popup.destroy,
+            #padx=20
+        )
+        close_button.pack(pady=10)
+        
+        # Ensure the popup stays on top
+        popup.focus_set()
+        
+        # Optional: animate the popup appearance
+        popup.attributes("-alpha", 0.0)
+        for i in range(1, 11):
+            popup.attributes("-alpha", i/10)
+            popup.update()
+            time.sleep(0.02)
+
+    def guess_sign_creator(self):
+        self.guess_sign = Label(
+            self.frame, 
+            text="Guess today's League of Legends champion!", 
+            font="Arial",
+            bg="#1E2328",
+            fg="white", 
+            highlightbackground="#EDB933",
+            highlightcolor="#EDB933",
+            highlightthickness=2
+            )
+        self.guess_sign.grid(row=9, rowspan=2, column=1, columnspan=11)
+        return self.guess_sign
+    
+    def image_loader(self, path):
+        self.window.update_idletasks()
+        size_parameter = min(self.window.winfo_height(), self.window.winfo_width())/5
+        try:
+            image = Image.open(path)
+            image = image.resize((int(size_parameter*0.3),int(size_parameter*0.3)))
+            return ImageTk.PhotoImage(image)
+        except Exception as e:
+            print(f"KUN IKKE LOADE IMAGE :( {path}: {e}")
+            return None
+            
+    def create_icons(self):
+        widgets = []
+       
+        self.Loldle_title = Label(
+            self.frame, 
+            text="LOLDLE-CLONE", 
+            font="Arial",
+            bg="#1E2328",
+            fg="white", 
+            highlightbackground="#EDB933",
+            highlightcolor="#EDB933",
+            highlightthickness=3
+        )
+        self.Loldle_title.grid(row=0, rowspan=4, column=2, columnspan=9)
+
+        columns = [2, 4, 6, 8, 10]
+        self.icon_labels = []
+
+        for i in range(5):
+            icon_label = Button(
+                self.frame,
+                bg="#1E2328",
+                highlightbackground="#EDB933",
+                highlightcolor="#EDB933",
+                highlightthickness=3,
+                image=self.images[i])
+            icon_label.grid(row=5, rowspan=2, column=columns[i], sticky=N+S+E+W)
+            self.icon_labels.append(icon_label)
+            widgets.append(icon_label)
+        widgets.append(self.Loldle_title)
+        return widgets
+
+    def lebronmination(self):
+        pass
+    
+    def guess_champ(self):
+        self.champ_guess_field = Entry(
+            self.frame, 
+            bg="#1E2328", 
+            fg="white", 
+            textvariable=self.champion_guess, 
+            font=self.lol_font_small,
+            highlightbackground="#01708D",
+            highlightcolor="#01708D",
+            highlightthickness=2
+        )
+        self.champ_guess_field.grid(row=12, column=1, columnspan=9, sticky=N+S+E+W)
+
+        self.dropdown_listbox = Listbox(
+            self.frame, 
+            font=self.lol_font_small, 
+            height=5, 
+            bg="#1E2328", 
+            fg="white",
+            highlightbackground="black",
+            highlightcolor="black",
+            highlightthickness=2,
+        )
+        self.dropdown_listbox.place_forget() # Makes it hidden
+
+        self.champ_guess_field.bind("<KeyRelease>", self.update_autofill)
+        self.dropdown_listbox.bind("<<ListboxSelect>>", self.select_from_list)
+        self.champ_guess_field.bind("<Tab>", self.tab_autocomplete)
+        # Add Enter key binding
+        self.champ_guess_field.bind("<Return>", lambda event: self.display_champ_info())
+
+        self.arrow_button = Button(
+            self.frame, 
+            bg="#1E2328", 
+            command = self.display_champ_info,
+            text="➤",
+            fg="white",
+            font="Arial"
+        )
+        self.arrow_button.grid(row=12, column=10, columnspan=2, sticky=N+S+E+W)
+
+    def update_autofill(self, event=None):
+        typed_text = self.champion_guess.get().strip()
+
+        if not typed_text:
+            self.dropdown_listbox.place_forget()  # Hide dropdown if empty
+            return
+
+        # Filter out champions that have already been guessed
+        available_champs = [champ for champ in self.champ_list 
+                          if champ.lower().startswith(typed_text.lower()) 
+                          and champ not in self.guessed_champions]
+
+        # Hide dropdown if the typed text is an exact match or already guessed
+        if typed_text in self.champ_list and typed_text not in self.guessed_champions:
+            self.dropdown_listbox.place_forget()
+            return
+
+        self.dropdown_listbox.delete(0, tkinter.END)  # Clear previous list
+
+        if available_champs:
+            for champ in available_champs:
+                self.dropdown_listbox.insert(tkinter.END, champ)
+
+            # Set height dynamically (max height = 5)
+            dropdown_height = min(len(available_champs), 5)  
+            self.dropdown_listbox.config(height=dropdown_height)  
+
+            # Position the dropdown under the entry field
+            self.dropdown_listbox.place(
+                x=self.champ_guess_field.winfo_x(),
+                y=self.champ_guess_field.winfo_y() + self.champ_guess_field.winfo_height(),
+                width=self.champ_guess_field.winfo_width()
+            )
+
+        else:
+            self.dropdown_listbox.place_forget()  # Hide dropdown if no matches
+    
+    def tab_autocomplete(self, event):
+        if self.dropdown_listbox.size() > 0:  # Ensure listbox has items
+            selected_champ = self.dropdown_listbox.get(0)  # Get the first champion
+            self.champion_guess.set(selected_champ)  # Set entry text to first champion
+            self.dropdown_listbox.place_forget()  # Hide dropdown
+            return "break"  # Prevents default Tab behavior
+
+    def select_from_list(self, event):
+        selected_index = self.dropdown_listbox.curselection()
+        if selected_index:
+            selected_champ = self.dropdown_listbox.get(selected_index[0])
+            self.champion_guess.set(selected_champ)
+            self.dropdown_listbox.place_forget()  # Hide dropdown after selection
+    
+    def display_champ_headers(self):
+        widgets = []
+        self.information_labels = []
+        self.line_labels = []
+
+        for i in range(9):
+            information = Label(
+                self.frame, 
+                text=f"{champ_header_texts[i]}\n──────", 
+                font="Arial",
+                fg="white",
+                bg="#1E2328",
+                highlightbackground="#01708D",
+                highlightcolor="#01708D",
+                highlightthickness=1
+            )
+            information.grid(row=14, column=i+2)
+            self.information_labels.append(information)
+            widgets.append(information)
+
+        return widgets
+
+    def clear_displayed_champs(self):
+        # Remove all currently displayed champion widgets
+        for widget_set in self.displayed_champ_widgets:
+            for widget in widget_set:
+                widget.grid_forget()
+        self.displayed_champ_widgets = []
+
+    def show_duplicate_warning(self, champ_name):
+        # Update the guess sign to show the duplicate warning
+        original_text = self.guess_sign["text"]
+        self.guess_sign.config(
+            text=f"You've already guessed {champ_name}!",
+            fg="#f52727"  # Red text for warning
+        )
+        
+        # Schedule reverting back to original text after 2 seconds
+        self.window.after(2000, lambda: self.guess_sign.config(
+            text=original_text,
+            fg="white"  # Revert to original color
+        ))
+
+    def display_champ_info(self):
+        if self.game_won:
+            return
+        
+        champ_guess = self.champion_guess.get().strip()
+        
+        # Check if the champion exists in the dictionary
+        if champ_guess not in champ_icon_dictionary:
+            return
+            
+        # Check if this champion has already been guessed
+        if champ_guess in self.guessed_champions:
+            self.show_duplicate_warning(champ_guess)
+            return
+            
+        # Add the champion to the guessed set
+        self.guessed_champions.add(champ_guess)
+            
+        # Clear the entry field after guessing
+        self.champion_guess.set("")
+        
+        # Increment guess counter
+        self.number_of_guesses += 1
+        
+        # Create new guess info
+        champ_info = self.champion_info[champ_guess]
+        
+        # Determine if champion is broken or balanced
+        if champ_guess not in broken_champs:
+            brokentext = "Balanced"
+        else:
+            brokentext = "Broken"
+        
+        # Create a list to store all widgets for this guess
+        guess_widgets = []
+        guess_labels = []
+        
+        # Champion icon
+        champ_icon = self.image_loader(champ_icon_dictionary[champ_guess])
+        champion_label = Label(self.frame, font="Arial", image=champ_icon, bg="#1E2328")
+        champion_label.image = champ_icon
+        guess_widgets.append(champion_label)
+        
+        # Champion information labels
+        for i in range(7):
+            info_label = Label(self.frame, text=champ_info[i], font="Arial")
+            guess_widgets.append(info_label)
+            guess_labels.append(info_label)
+        
+        # Broken/Balanced label
+        broken_label = Label(self.frame, text=brokentext, font="Arial")
+        guess_widgets.append(broken_label)
+        guess_labels.append(broken_label)
+        
+        # Add this guess to the beginning of our list
+        self.all_guesses.insert(0, {
+            'widgets': guess_widgets,
+            'labels': guess_labels,
+            'name': champ_guess
+        })
+        
+        # Clear the currently displayed champions
+        self.clear_displayed_champs()
+        
+        # Display only the most recent 5 guesses (or fewer if less than 5 guesses made)
+        displayed_guesses = self.all_guesses[:self.max_displayed_champs]
+        
+        # Display each guess
+        for idx, guess in enumerate(displayed_guesses):
+            row_position = 15 + (idx * 2)  # Each guess takes 2 rows, starting from row 15
+            
+            # Place champion icon
+            guess['widgets'][0].grid(row=row_position, rowspan=2, column=2, sticky=N+S+E+W, padx=4, pady=4)
+            
+            # Place champion info labels
+            for i in range(7):
+                guess['widgets'][i+1].grid(row=row_position, rowspan=2, column=i+3, sticky=N+S+E+W, padx=4, pady=4)
+            
+            # Place broken/balanced label
+            guess['widgets'][8].grid(row=row_position, rowspan=2, column=10, sticky=N+S+E+W, padx=4, pady=4)
+            
+            # Save references to displayed widgets
+            self.displayed_champ_widgets.append(guess['widgets'])
+
+            # Apply coloring and check for victory
+            self.guess_colorer(guess['labels'], guess['name'])
+
+    @staticmethod
+    def make_gui():        
+        window = Tk()
+        window.geometry("1200x900")
+        window.title("NBA Youngboy can sing!!!!")
+
+        frame = Frame(window, bg="white", bd=0)
+        frame.grid(sticky=N+S+E+W)
+
+        custom_font_large = tkinter.font.Font(family="MPH 2B Damase", size=30, weight="bold")
+        custom_font_small = tkinter.font.Font(family="MPH 2B Damase", size=14, weight="bold")
+        number_of_guesses = 0
+        # chosen_champ = random.choice(list(classic_champion_data.keys()))
+        chosen_champ = 'Darius'
+
+        classic_game = Classic(frame, classic_champion_data, window, custom_font_large, custom_font_small, number_of_guesses, chosen_champ)
+
+        window.rowconfigure(0, weight=1)
+        window.columnconfigure(0, weight=1)
+
+        for i in range(30):
+            frame.rowconfigure(i, weight=1)
+        for i in range(13):
+            frame.columnconfigure(i, weight=1)
+        
+        bg_image = Image.open(background_image)
+        bg_image = bg_image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.Resampling.LANCZOS)
+        bg_image = ImageTk.PhotoImage(bg_image)
+        bg_img_L = Label(frame, image=bg_image)
+        bg_img_L.grid(row=0, rowspan=50, column=0, columnspan=15)
+        bg_img_L.image = bg_image
+
+        classic_game.guess_sign_creator()
+        classic_game.display_champ_headers()
+        classic_game.create_icons()
+        classic_game.guess_champ()
+
+        window.mainloop()
+
+Classic.make_gui()
