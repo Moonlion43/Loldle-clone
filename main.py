@@ -349,49 +349,47 @@ class Classic:
             for i in range(len(guess_labels)):
                 extra_checks = [] # Checks for partials in a correct manner
 
-                if("\n" in guess_labels[i]["text"]):
+                if("\n" in guess_labels[i]["text"]): # Checks if there are multiple values in the labels
                     extra_checks = guess_labels[i]["text"].replace("\n", "").split(",")
 
-                if(len(extra_checks) > 0):
-
+                if(len(extra_checks) > 0): # If multiple values do exist, loops through one by one
                     amountFound = 0
                     for j in range(len(extra_checks)):
                         
-                        if extra_checks[j] in chosen_data[i]:
+                        if extra_checks[j] in chosen_data[i]: # Checks how many individual values match with the chosen data values
                             amountFound += 1
                     
-                    if amountFound == len(extra_checks):
-                        guess_labels[i].config(bg="#21ed1a")
-                    elif amountFound > 0:
-                        guess_labels[i].config(bg="#f78d23")
+                    if amountFound == len(extra_checks): 
+                        guess_labels[i].config(bg="#21ed1a") # Green if they are 100% equal to each other
+                    elif amountFound > 0: 
+                        guess_labels[i].config(bg="#f78d23") # Orange if there are similarities but not 100%
                         all_correct = False
                     else:
-                        guess_labels[i].config(bg="#f52727")
+                        guess_labels[i].config(bg="#f52727") # Red if not the two prior options
                         all_correct = False
-                else:
+                else: # If no extra values, use standard procedure
                     if guess_labels[i]["text"] == chosen_data[i]:
-                        guess_labels[i].config(bg="#21ed1a")  # Green for correct
+                        guess_labels[i].config(bg="#21ed1a")  # Green for 100% similarity
                     elif guess_labels[i]["text"] in chosen_data[i]:
-                        guess_labels[i].config(bg="#f78d23")  # Orange for partially correct
+                        guess_labels[i].config(bg="#f78d23")  # Orange for partially similar
                         all_correct = False
                     else:
-                        guess_labels[i].config(bg="#f52727")  # Red for incorrect
+                        guess_labels[i].config(bg="#f52727")  # Red for not similar
                         all_correct = False
 
-        if correct_guess and all_correct and not self.game_won:
+        if correct_guess and all_correct and not self.game_won: # If user guessed correct and game hasn't been won yet
             self.game_won = True
-            self.show_victory_popup()
+            self.show_victory_popup() # Victory pop-up screen to congratulate
 
     def show_victory_popup(self):
-        # Create a popup window
-        popup = Toplevel(self.window)
+        popup = Toplevel(self.window) # Creates a popup window
         popup.title("Congratulations!")
         
         # Calculate position to center the popup
         window_width = self.window.winfo_width()
         window_height = self.window.winfo_height()
-        popup_width = 400
-        popup_height = 250
+        popup_width = 400 # Static but customizable
+        popup_height = 250 # Static but customizable
         x_position = self.window.winfo_x() + (window_width - popup_width) // 2
         y_position = self.window.winfo_y() + (window_height - popup_height) // 2
         
@@ -399,12 +397,11 @@ class Classic:
         popup.geometry(f"{popup_width}x{popup_height}+{x_position}+{y_position}")
         popup.resizable(False, False)
         
-        # Make popup appear on top and grab focus
+        # Make popup appear on top, stay on top and grab focus
         popup.transient(self.window)
         popup.grab_set()
-        
-        # Style the popup
-        popup.configure(bg="#1E2328")
+        popup.focus_set()
+        popup.configure(bg="#1E2328", highlightthickness=5, highlightcolor="#01708D")
         
         # Create a frame for content
         content_frame = Frame(popup, bg="#1E2328", padx=20, pady=20)
@@ -416,17 +413,17 @@ class Classic:
             text=f"Congratulations!\nYou guessed the champion: {self.chosen_champ}!",
             font=("Copperplate Gothic Bold", 16),
             bg="#1E2328",
-            fg="#EDB933",
+            fg="#EDB933", # Gold color for premium feels
             justify="center",
-            wraplength=350
+            wraplength=350 # Forces new line every 350 pixels (25 pixels each side at least)
         )
         victory_label.pack(pady=10)
         
-        # Add stats
+        # Add label with number of guesses used
         stats_label = Label(
             content_frame,
             text=f"Number of guesses: {self.number_of_guesses}",
-            font=("Arial", 12),
+            font=("Arial Bold", 14),
             bg="#1E2328",
             fg="white"
         )
@@ -436,25 +433,23 @@ class Classic:
         close_button = Button(
             content_frame,
             text="Close",
-            font=("Arial", 12),
+            font=("Arial Bold", 13),
             bg="#01708D",
             fg="white",
             command=popup.destroy,
-            #padx=20
         )
         close_button.pack(pady=10)
         
-        # Ensure the popup stays on top
-        popup.focus_set()
-        
-        # Optional: animate the popup appearance
-        popup.attributes("-alpha", 0.0)
+        # Animation for pop-up screen
+        popup.attributes("-alpha", 0.0) # 100% transparent
         for i in range(1, 11):
-            popup.attributes("-alpha", i/10)
+            popup.attributes("-alpha", i/10) # Increases visibility
             popup.update()
             time.sleep(0.02)
 
     def guess_sign_creator(self):
+        """Creates a label with text for guessing champions.
+        Also displays if u have already guessed champ."""
         self.guess_sign = Label(
             self.frame, 
             text="Guess today's League of Legends champion!", 
@@ -466,20 +461,22 @@ class Classic:
             highlightthickness=2
             )
         self.guess_sign.grid(row=9, rowspan=2, column=1, columnspan=11)
-        return self.guess_sign
     
     def image_loader(self, path):
+        """Loads an image from a given path and resizes the images."""
         self.window.update_idletasks()
         size_parameter = min(self.window.winfo_height(), self.window.winfo_width())/5
-        try:
-            image = Image.open(path)
+        try: # Opens image with PIL, resizes it and returns tkinter-image
+            image = Image.open(path) 
             image = image.resize((int(size_parameter*0.3),int(size_parameter*0.3)), Image.Resampling.LANCZOS)
             return ImageTk.PhotoImage(image)
-        except Exception as e:
+        except Exception as e: # Error printed with path and Exception
             print(f"KUN IKKE LOADE IMAGE :( {path}: {e}")
             return None
             
     def create_icons(self):
+        """Function to create icons for the different gamemodes."""
+        # Creates the title with golden border
         self.Loldle_title = Label(
             self.frame, 
             text="LOLDLE-CLONE", 
@@ -492,6 +489,7 @@ class Classic:
         )
         self.Loldle_title.grid(row=0, rowspan=4, column=2, columnspan=9)
 
+        # Creates two lists for the gamemode icon labels
         columns = [2, 4, 6, 8, 10]
         self.icon_labels = []
 
@@ -504,31 +502,33 @@ class Classic:
                 highlightthickness=3,
                 image=self.images[i])
             icon_label.grid(row=5, rowspan=2, column=columns[i], sticky=N+S+E+W)
-            self.icon_labels.append(icon_label)
+            self.icon_labels.append(icon_label) # Adds labels to list for future editing
 
     def lebronmination(self):
+        """Easter Egg function that displays lebron images instead of champion info if u type certain words."""
         guess = self.champion_guess.get().strip().lower()
 
         if guess in lebron_texts:
             lebron_image = self.image_loader(r"misc images/Lebron.png")
             
-            if lebron_image is None:
+            if lebron_image is None: # If there is an error with loading image, simply returns None for error handling
                 return
             
-            # Store image reference in self to prevent garbage collection
-            self.lebron_image_ref = lebron_image  
+            self.lebron_image_ref = lebron_image # Store image reference in self to prevent garbage collection
 
+            # Loops through the widgets and removes text and adds an image of lebron
             for widget_list in self.displayed_champ_widgets:
                 for widget in widget_list:
                     widget.config(
                         text="",
                         image=self.lebron_image_ref
                     )
-                    widget.image = self.lebron_image_ref  # Critical: Prevents Tkinter from deleting it
+                    widget.image = self.lebron_image_ref # Keep a reference for tkinter-issues
 
             self.window.update_idletasks()  # Force UI update
     
     def guess_champ(self):
+        """Function for creating entry and button for guessing champions."""
         self.champ_guess_field = Entry(
             self.frame, 
             bg="#1E2328", 
@@ -541,6 +541,7 @@ class Classic:
         )
         self.champ_guess_field.grid(row=12, column=1, columnspan=9, sticky=N+S+E+W)
 
+        # Creates the essential and immensly powerful listbox widget :D
         self.dropdown_listbox = Listbox(
             self.frame, 
             font=self.lol_font_small, 
@@ -553,12 +554,12 @@ class Classic:
         )
         self.dropdown_listbox.place_forget() # Makes it hidden initially
 
-        self.champ_guess_field.bind("<KeyRelease>", self.update_autofill)
-        self.dropdown_listbox.bind("<<ListboxSelect>>", self.select_from_list)
-        self.champ_guess_field.bind("<Tab>", self.tab_autocomplete)
-        # Add Enter key binding
-        self.champ_guess_field.bind("<Return>", lambda event: self.display_champ_info())
+        self.champ_guess_field.bind("<KeyRelease>", self.update_autofill) # Whenever user types a letter, will update the list
+        self.dropdown_listbox.bind("<<ListboxSelect>>", self.select_from_list) # When you press something in the list, runs self.select_from_list
+        self.champ_guess_field.bind("<Tab>", self.tab_autocomplete) # Calls autocomplete function if u press tab
+        self.champ_guess_field.bind("<Return>", lambda event: self.display_champ_info()) # Does a guess when you press enter
 
+        # Button for making a guess which runs the display_champ_info method
         self.arrow_button = Button(
             self.frame, 
             bg="#1E2328", 
@@ -625,7 +626,7 @@ class Classic:
             self.dropdown_listbox.place_forget()  # Hide dropdown after selection
     
     def display_champ_headers(self):
-        widgets = []
+        """Function for creating information labels for the different categories."""
         self.information_labels = []
         self.line_labels = []
 
@@ -642,18 +643,16 @@ class Classic:
             )
             information.grid(row=14, column=i+2)
             self.information_labels.append(information)
-            widgets.append(information)
-
-        return widgets
 
     def clear_displayed_champs(self):
-        # Remove all currently displayed champion widgets
+        """Removes all currently displayed champion widgets"""
         for widget_set in self.displayed_champ_widgets:
             for widget in widget_set:
                 widget.grid_forget()
         self.displayed_champ_widgets = []
 
     def show_duplicate_warning(self, champ_name):
+        """Function for showing a warning if making the same guess."""
         # Update the guess sign to show the duplicate warning
         original_text = self.guess_sign["text"]
         self.guess_sign.config(
@@ -674,7 +673,6 @@ class Classic:
         champ_guess = self.champion_guess.get().strip()
         
         self.lebronmination()
-        print("calling lebroni")
 
         # Check if the champion exists in the dictionary
         if champ_guess not in champ_icon_dictionary:
@@ -758,10 +756,9 @@ class Classic:
             # Apply coloring and check for victory
             self.guess_colorer(guess['labels'], guess['name'])
 
-        
-
-    @staticmethod
-    def make_gui():        
+    @staticmethod # Removes make_gui from self. attributes, but remains in the class
+    def make_gui():
+        """The central function for creating a GUI in a frame in a window"""        
         window = Tk()
         window.geometry("1200x900")
         window.title("NBA Youngboy can sing!!!!")
@@ -769,13 +766,16 @@ class Classic:
         frame = Frame(window, bg="white", bd=0)
         frame.grid(sticky=N+S+E+W)
 
-        custom_font_large = tkinter.font.Font(family="MPH 2B Damase", size=30, weight="bold")
-        custom_font_small = tkinter.font.Font(family="MPH 2B Damase", size=14, weight="bold")
+        # Creating the variables for parameters in the Classic-class initilization
+        custom_font_large = tkinter.font.Font(family="MPH 2B Damase", size=30, weight="bold") # Making custom font similar to LOL's, large
+        custom_font_small = tkinter.font.Font(family="MPH 2B Damase", size=14, weight="bold") # Making custom font similar to LOL's, small
         number_of_guesses = 0
-        chosen_champ = random.choice(list(classic_champion_data.keys()))
+        chosen_champ = random.choice(list(classic_champion_data.keys())) # Randomly chooses a champion
 
+        # Creates an instance of the Classic class, recieving different parameters
         classic_game = Classic(frame, classic_champion_data, window, custom_font_large, custom_font_small, number_of_guesses, chosen_champ)
 
+        # Creating weights for the window and the frame
         window.rowconfigure(0, weight=1)
         window.columnconfigure(0, weight=1)
 
@@ -784,6 +784,7 @@ class Classic:
         for i in range(13):
             frame.columnconfigure(i, weight=1)
         
+        # Opens the background image, can't use image_loader() because of @staticmethod
         bg_image = Image.open(background_image)
         bg_image = bg_image.resize((window.winfo_screenwidth(), window.winfo_screenheight()), Image.Resampling.LANCZOS)
         bg_image = ImageTk.PhotoImage(bg_image)
@@ -791,11 +792,14 @@ class Classic:
         bg_img_L.grid(row=0, rowspan=50, column=0, columnspan=15)
         bg_img_L.image = bg_image
 
+        # Creates the different widgets from functions of the instance classic_game
         classic_game.guess_sign_creator()
         classic_game.display_champ_headers()
         classic_game.create_icons()
         classic_game.guess_champ()
 
+        # Makes sure the game runs in a loop
         window.mainloop()
 
+# Calls the make_gui method from the Classic-class, running the whole shabang
 Classic.make_gui()
