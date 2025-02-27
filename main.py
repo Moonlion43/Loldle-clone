@@ -24,6 +24,13 @@ entry_images = [
 
 background_image = Path(r"misc images\Darkened Wallpaper.webp")
 
+lebron_texts = [
+    "lebron",
+    "lebron james",
+    "the goat",
+    "goat",
+]
+
 champ_header_texts = [
     "Champion",
     "Gender",
@@ -244,47 +251,51 @@ champ_list = [
     "Zeri", "Ziggs", "Zilean", "Zoe", "Zyra",
 ]
 
-# Creates a new line for each comma in the different elements in the value-list of the key in classic_champion_data
+# Creates a new line for each comma in the different elements in the value-list of the key in classic_champion_data for readability
 for i in range(len(champ_list)):
     for j in range(len(classic_champion_data[champ_list[i]])):
         classic_champion_data[champ_list[i]][j] = classic_champion_data[champ_list[i]][j].replace(", ", ",\n")
 
-# Creates a dictionary with keys as champion names and gives an absolute file-path as values
+# Creates a dictionary with keys as champion names and gives relative file-paths as values
 champ_icon_dictionary = {}
-file_path = "C:\\Users\\henri\\OneDrive - AARHUS TECH\\2. G\\Programmering\\Skoleprojekter\\Eksamen\\champ_icons\\"
+file_path = "champ_icons\\"
 for i in range(170):
     champ_name = champ_list[i]
     champ_icon_dictionary.update({str(champ_name): f"{file_path}{champ_list[i]}Square.webp"})
 
 class Classic:
     def __init__(self, frame, champion_info, window, lol_font_large, lol_font_small, number_of_guesses, chosen_champ):
+        
+        # Initializing certain labels, a window, a frame and certain field-values
         self.frame = frame
         self.champion_guess = StringVar()
         self.champion_info = champion_info
         self.window = window
         self.lol_font_large = lol_font_large
         self.lol_font_small = lol_font_small
-        self.images = [self.image_loader(path) for path in icon_images]
         self.number_of_guesses = number_of_guesses
         self.chosen_champ = chosen_champ
+        self.max_displayed_champs = 5
 
+        # Different lists 
         self.champ_list = list(champion_info.keys())
         self.icon_labels = []
         self.information_labels = []
         self.guess_labels = []
         self.champ_guesses = []
-        
-        # Store all guesses and their info
         self.all_guesses = []
-        # Maximum number of displayed champions
-        self.max_displayed_champs = 5
-        # Keep track of displayed champion widgets
         self.displayed_champ_widgets = []
+
         # Keep track of guessed champion names to prevent duplicates
         self.guessed_champions = set()
+        self.images = []
+        for path in icon_images:
+            self.images.append(self.image_loader(path)) # Adds icon images to self.images
+        
         # Game won flag
         self.game_won = False
         
+        # Labels as fields, defined as None atm.
         self.guess_sign = None
         self.Loldle_title = None
         self.icon_label = None
@@ -293,57 +304,80 @@ class Classic:
         self.information = None
         self.line = None
 
+        # Initializing certain functions
         self.create_icons()
         self.guess_sign_creator()
         self.guess_champ()
         self.display_champ_headers()
 
+        # Resizes certain elements when resizing window
         self.window.after(100, lambda: self.window.bind("<Configure>", lambda event: self.resize_handler()))
     
     def resize_handler(self):
+        """Function for resizing different elements based on self.handling_size"""
         self.handling_size = int(min(self.window.winfo_height(), self.window.winfo_width())/10)
-        if self.Loldle_title:
+        if self.Loldle_title: # Configures the title size
             self.Loldle_title.config(font=("Copperplate Gothic Bold", int(self.handling_size*0.5)))
-        if self.guess_sign:
+        if self.guess_sign: # Configures the guess sign size
             self.guess_sign.config(font=("Copperplate Gothic Bold", int(self.handling_size*0.3)))
-        if self.icon_label:
+        if self.icon_label: # Configures the icon images size
             for i in range(len(self.images)):
                 original_image = Image.open(icon_images[i])
                 resized_image = original_image.resize((int(self.handling_size*0.5), int(self.handling_size*0.5)), Image.Resampling.BILINEAR)
                 self.images[i] = ImageTk.PhotoImage(resized_image)
                 self.icon_label.config(image=self.images[i])
                 self.icon_label.config(width=int(self.handling_size*0.5), height=int(self.handling_size*0.5))
-        if self.information:
+        if self.information: # Configures the labels (with champ info)
             for i in range(len(self.information_labels)):
                 self.information_labels[i].config(font=("Copperplate Gothic Bold", int(self.handling_size*0.1)))
-        if self.line:
-            pass
     
     def guess_colorer(self, guess_labels, champ_name):
+        """Changes the color of the champion labels based on whether or not they are correct.
+        Green for correct, orange for partially correct and red for wrong."""
         chosen_data = classic_champion_data[self.chosen_champ]
 
-        if self.chosen_champ in broken_champs:
+        if self.chosen_champ in broken_champs: # Determines if the chosen champ is broken (as determined by myself)
             label_text = "Broken"
         else:
             label_text = "Balanced"
         chosen_data.append(label_text)
 
-        # Check if this is the correct champion
-        correct_guess = (champ_name == self.chosen_champ)
-        all_correct = True
+        correct_guess = (champ_name == self.chosen_champ) # Chooses the correct guess
+        all_correct = True # Assumes the user guessed correctly initially
 
-        if guess_labels:
+        if guess_labels: # Checks if there are even guess_labels (has there been a guess)
             for i in range(len(guess_labels)):
-                if guess_labels[i]["text"] == chosen_data[i]:
-                    guess_labels[i].config(bg="#21ed1a")  # Green for correct
-                elif guess_labels[i]["text"] in chosen_data[i]:
-                    guess_labels[i].config(bg="#f78d23")  # Orange for partially correct
-                    all_correct = False
-                else:
-                    guess_labels[i].config(bg="#f52727")  # Red for incorrect
-                    all_correct = False
+                extra_checks = [] # Checks for partials in a correct manner
 
-        # If it's the correct champion and all fields are green, player won
+                if("\n" in guess_labels[i]["text"]):
+                    extra_checks = guess_labels[i]["text"].replace("\n", "").split(",")
+
+                if(len(extra_checks) > 0):
+
+                    amountFound = 0
+                    for j in range(len(extra_checks)):
+                        
+                        if extra_checks[j] in chosen_data[i]:
+                            amountFound += 1
+                    
+                    if amountFound == len(extra_checks):
+                        guess_labels[i].config(bg="#21ed1a")
+                    elif amountFound > 0:
+                        guess_labels[i].config(bg="#f78d23")
+                        all_correct = False
+                    else:
+                        guess_labels[i].config(bg="#f52727")
+                        all_correct = False
+                else:
+                    if guess_labels[i]["text"] == chosen_data[i]:
+                        guess_labels[i].config(bg="#21ed1a")  # Green for correct
+                    elif guess_labels[i]["text"] in chosen_data[i]:
+                        guess_labels[i].config(bg="#f78d23")  # Orange for partially correct
+                        all_correct = False
+                    else:
+                        guess_labels[i].config(bg="#f52727")  # Red for incorrect
+                        all_correct = False
+
         if correct_guess and all_correct and not self.game_won:
             self.game_won = True
             self.show_victory_popup()
@@ -439,15 +473,13 @@ class Classic:
         size_parameter = min(self.window.winfo_height(), self.window.winfo_width())/5
         try:
             image = Image.open(path)
-            image = image.resize((int(size_parameter*0.3),int(size_parameter*0.3)))
+            image = image.resize((int(size_parameter*0.3),int(size_parameter*0.3)), Image.Resampling.LANCZOS)
             return ImageTk.PhotoImage(image)
         except Exception as e:
             print(f"KUN IKKE LOADE IMAGE :( {path}: {e}")
             return None
             
     def create_icons(self):
-        widgets = []
-       
         self.Loldle_title = Label(
             self.frame, 
             text="LOLDLE-CLONE", 
@@ -473,12 +505,28 @@ class Classic:
                 image=self.images[i])
             icon_label.grid(row=5, rowspan=2, column=columns[i], sticky=N+S+E+W)
             self.icon_labels.append(icon_label)
-            widgets.append(icon_label)
-        widgets.append(self.Loldle_title)
-        return widgets
 
     def lebronmination(self):
-        pass
+        guess = self.champion_guess.get().strip().lower()
+
+        if guess in lebron_texts:
+            lebron_image = self.image_loader(r"misc images/Lebron.png")
+            
+            if lebron_image is None:
+                return
+            
+            # Store image reference in self to prevent garbage collection
+            self.lebron_image_ref = lebron_image  
+
+            for widget_list in self.displayed_champ_widgets:
+                for widget in widget_list:
+                    widget.config(
+                        text="",
+                        image=self.lebron_image_ref
+                    )
+                    widget.image = self.lebron_image_ref  # Critical: Prevents Tkinter from deleting it
+
+            self.window.update_idletasks()  # Force UI update
     
     def guess_champ(self):
         self.champ_guess_field = Entry(
@@ -503,7 +551,7 @@ class Classic:
             highlightcolor="black",
             highlightthickness=2,
         )
-        self.dropdown_listbox.place_forget() # Makes it hidden
+        self.dropdown_listbox.place_forget() # Makes it hidden initially
 
         self.champ_guess_field.bind("<KeyRelease>", self.update_autofill)
         self.dropdown_listbox.bind("<<ListboxSelect>>", self.select_from_list)
@@ -529,20 +577,24 @@ class Classic:
             return
 
         # Filter out champions that have already been guessed
-        available_champs = [champ for champ in self.champ_list 
-                          if champ.lower().startswith(typed_text.lower()) 
-                          and champ not in self.guessed_champions]
+        available_champs = []
+        for champion in self.champ_list:  
+            champ_name = champion.lower()  
+            user_input = typed_text.lower()  
+
+            if champ_name.startswith(user_input) and champion not in self.guessed_champions:  
+                available_champs.append(champion)
 
         # Hide dropdown if the typed text is an exact match or already guessed
         if typed_text in self.champ_list and typed_text not in self.guessed_champions:
             self.dropdown_listbox.place_forget()
             return
 
-        self.dropdown_listbox.delete(0, tkinter.END)  # Clear previous list
+        self.dropdown_listbox.delete(0, END)  # Clear previous list
 
         if available_champs:
             for champ in available_champs:
-                self.dropdown_listbox.insert(tkinter.END, champ)
+                self.dropdown_listbox.insert(END, champ)
 
             # Set height dynamically (max height = 5)
             dropdown_height = min(len(available_champs), 5)  
@@ -621,6 +673,9 @@ class Classic:
         
         champ_guess = self.champion_guess.get().strip()
         
+        self.lebronmination()
+        print("calling lebroni")
+
         # Check if the champion exists in the dictionary
         if champ_guess not in champ_icon_dictionary:
             return
@@ -663,6 +718,7 @@ class Classic:
             info_label = Label(self.frame, text=champ_info[i], font="Arial")
             guess_widgets.append(info_label)
             guess_labels.append(info_label)
+            
         
         # Broken/Balanced label
         broken_label = Label(self.frame, text=brokentext, font="Arial")
@@ -701,6 +757,8 @@ class Classic:
 
             # Apply coloring and check for victory
             self.guess_colorer(guess['labels'], guess['name'])
+
+        
 
     @staticmethod
     def make_gui():        
